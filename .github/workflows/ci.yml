@@ -26,6 +26,7 @@ jobs:
     - name: Run MLflow Project
       env:
         MLFLOW_ALLOW_FILE_STORE: "true"
+        MLFLOW_DISABLE_ENV_MANAGER_CONDITIONAL: "true"
       run: |
         cd MLProject
         mlflow run . --env-manager=local
