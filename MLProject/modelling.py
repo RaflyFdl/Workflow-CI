@@ -22,7 +22,7 @@ mlflow.set_tracking_uri("file:./mlruns")
 mlflow.set_experiment("Predictive_Maintenance_Basic")
 
 # 3. Aktifkan autolog
-mlflow.autolog()
+# mlflow.autolog()
 
 # 4. Jalankan training
 print("\nMemulai training model...")
