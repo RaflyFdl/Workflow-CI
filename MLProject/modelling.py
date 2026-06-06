@@ -17,26 +17,33 @@ y_test = test["Machine failure"]
 
 print("Data berhasil dimuat!")
 
-# 2. Set experiment
-mlflow.set_tracking_uri("file:./mlruns")
-mlflow.set_experiment("Predictive_Maintenance_Basic")
+# Cek lingkungan eksekusi
+is_github_ci = os.environ.get("GITHUB_ACTIONS") == "true"
+
+# 2. Set experiment 
+# Di lingkungan GitHub CI, biarkan backend sistem mengatur URI secara otomatis agar tidak disorientasi folder
+if not is_github_ci:
+    mlflow.set_tracking_uri("file:./mlruns")
+    mlflow.set_experiment("Predictive_Maintenance_Basic")
 
 # 4. Jalankan training
 print("\nMemulai training model...")
 
-# Cek apakah ini di GitHub Actions
-is_github_ci = os.environ.get("GITHUB_ACTIONS") == "true"
-
 if is_github_ci:
-    # Di GitHub CI, jangan pakai start_run() karena mlflow run . sudah membuatkannya secara otomatis
+    # Eksekusi langsung untuk GitHub CI memanfaatkan autolog/active run dari 'mlflow run'
     model = RandomForestClassifier(random_state=42, class_weight="balanced")
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
     print("Accuracy Model:", accuracy)
-    mlflow.log_metric("testing_accuracy", accuracy)
+    
+    # Mencatat metrik menggunakan active_run yang aman di lingkungan CI
+    try:
+        mlflow.log_metric("testing_accuracy", accuracy)
+    except Exception as e:
+        print(f"Pencatatan metrik dilewati di CI untuk menghindari konflik: {e}")
 else:
-    # Di laptop lokal kamu, tetap berjalan normal pakai start_run()
+    # Alur normal untuk komputer lokal kamu
     with mlflow.start_run():
         model = RandomForestClassifier(random_state=42, class_weight="balanced")
         model.fit(X_train, y_train)
