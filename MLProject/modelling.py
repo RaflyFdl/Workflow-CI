@@ -26,7 +26,7 @@ mlflow.autolog()
 
 # 4. Jalankan training
 print("\nMemulai training model...")
-with mlflow.start_run():
+with mlflow.start_run(nested=True):
 
     model = RandomForestClassifier(
         random_state=42,
